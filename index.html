@@ -39,7 +39,6 @@
       min-height: 100vh;
     }
 
-    /* ── HEADER ── */
     header {
       background: var(--navy);
       padding: 0 40px;
@@ -70,7 +69,6 @@
     }
     .header-right { margin-left: auto; color: rgba(255,255,255,.35); font-size: 13px; }
 
-    /* ── LAYOUT ── */
     main {
       max-width: 780px;
       margin: 0 auto;
@@ -91,7 +89,6 @@
       line-height: 1.6; margin-bottom: 40px;
     }
 
-    /* ── TABS ── */
     .tab-strip {
       display: flex; gap: 0;
       border-bottom: 2px solid var(--border);
@@ -126,11 +123,9 @@
       color: var(--blue);
     }
 
-    /* ── PANEL ── */
     .panel { display: none; }
     .panel.active { display: block; }
 
-    /* ── INPUT CARD ── */
     .input-card {
       background: var(--white);
       border-radius: var(--radius);
@@ -196,7 +191,6 @@
     .scan-btn:active { transform: translateY(0); }
     .scan-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    /* ── WHAT WE CHECK ── */
     .check-info {
       margin-top: 20px;
       padding: 16px 20px;
@@ -214,7 +208,6 @@
       color: var(--blue);
     }
 
-    /* ── LOADER ── */
     .loader {
       display: none;
       flex-direction: column;
@@ -234,7 +227,6 @@
     .loader-text { color: var(--slate); font-size: 14px; }
     .loader-sub { color: rgba(100,116,139,.6); font-size: 12px; }
 
-    /* ── RESULT ── */
     .result { display: none; }
     .result.visible { display: block; }
 
@@ -244,18 +236,9 @@
       display: flex; gap: 24px; align-items: flex-start;
       box-shadow: var(--shadow);
     }
-    .result-card.success {
-      background: var(--green-bg);
-      border: 2px solid var(--green-bdr);
-    }
-    .result-card.failure {
-      background: var(--red-bg);
-      border: 2px solid var(--red-bdr);
-    }
-    .result-card.warning {
-      background: var(--warn-bg);
-      border: 2px solid var(--warn-bdr);
-    }
+    .result-card.success { background: var(--green-bg); border: 2px solid var(--green-bdr); }
+    .result-card.failure { background: var(--red-bg);   border: 2px solid var(--red-bdr); }
+    .result-card.warning { background: var(--warn-bg);  border: 2px solid var(--warn-bdr); }
 
     .result-emoji { font-size: 48px; line-height: 1; flex-shrink: 0; }
 
@@ -278,20 +261,12 @@
 
     .result-detail { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 12px; }
 
-    .result-meta {
-      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-    }
+    .result-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .meta-tag {
       font-family: 'DM Mono', monospace; font-size: 12px;
       background: rgba(0,0,0,.06);
       padding: 4px 10px; border-radius: 6px;
       color: var(--slate); word-break: break-all;
-    }
-
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px; background: var(--border);
-      margin: 28px 0;
     }
   </style>
 </head>
@@ -309,7 +284,6 @@
   <h1 class="page-title">Code Installation Checker</h1>
   <p class="page-sub">Enter any client website URL to instantly verify whether DearDoc tracking code is correctly installed. Results appear in seconds.</p>
 
-  <!-- TABS -->
   <div class="tab-strip">
     <button class="tab-btn active" onclick="switchTab(0)">
       🔥 CodePanel
@@ -321,42 +295,32 @@
     </button>
   </div>
 
-  <!-- ══════ TAB 0: Firebase ══════ -->
+  <!-- TAB 0: CodePanel -->
   <div class="panel active" id="panel-0">
-
     <div class="input-card">
       <div class="field-label">
         Client Website URL
         <span class="field-label-sub">— homepage or any page</span>
       </div>
-
       <div class="input-wrap">
         <span class="url-prefix">https://</span>
-        <input class="url-input" id="url-0"
-               type="text"
-               placeholder="clientwebsite.com"
+        <input class="url-input" id="url-0" type="text" placeholder="clientwebsite.com"
                onkeydown="if(event.key==='Enter') runCheck(0)" />
       </div>
-
       <button class="scan-btn" id="btn-0" onclick="runCheck(0)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Scan for CodePanel
       </button>
-
       <div class="check-info">
         <div class="check-info-icon">🔍</div>
-        <p>Scans the page HTML for <code>firebasestorage.googleapis.com</code> — the identifier that confirms the DearDoc tracking pixel is installed.</p>
+        <p>Scans the page HTML for <code>firebasestorage.googleapis.com</code> — confirms the DearDoc tracking pixel is installed.</p>
       </div>
     </div>
-
-    <!-- Loader -->
     <div class="loader" id="loader-0">
       <div class="loader-ring"></div>
       <div class="loader-text">Scanning website…</div>
       <div class="loader-sub">This usually takes 2–5 seconds</div>
     </div>
-
-    <!-- Result -->
     <div class="result" id="result-0">
       <div class="result-card" id="result-card-0">
         <div class="result-emoji" id="result-emoji-0"></div>
@@ -364,51 +328,38 @@
           <div class="result-status" id="result-status-0"></div>
           <div class="result-headline" id="result-headline-0"></div>
           <div class="result-detail" id="result-detail-0"></div>
-          <div class="result-meta">
-            <span class="meta-tag" id="result-url-0"></span>
-          </div>
+          <div class="result-meta"><span class="meta-tag" id="result-url-0"></span></div>
         </div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /panel-0 -->
-
-  <!-- ══════ TAB 1: Blog Embed ══════ -->
+  <!-- TAB 1: Blog Embed -->
   <div class="panel" id="panel-1">
-
     <div class="input-card">
       <div class="field-label">
         Client Website URL
         <span class="field-label-sub">— homepage or any page</span>
       </div>
-
       <div class="input-wrap">
         <span class="url-prefix">https://</span>
-        <input class="url-input" id="url-1"
-               type="text"
-               placeholder="clientwebsite.com"
+        <input class="url-input" id="url-1" type="text" placeholder="clientwebsite.com"
                onkeydown="if(event.key==='Enter') runCheck(1)" />
       </div>
-
       <button class="scan-btn" id="btn-1" onclick="runCheck(1)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         Scan for Blog Embed Script
       </button>
-
       <div class="check-info">
         <div class="check-info-icon">🔍</div>
-        <p>Scans the page for the DearDoc blog embed script: <code>blog.getdeardoc.com/embedjs/727aacc9-8907-4269-9d7b-4f74e1ea2c88.js</code></p>
+        <p>Scans the page for the DearDoc blog embed element: <code>&lt;div id="dib-posts"&gt;&lt;/div&gt;</code></p>
       </div>
     </div>
-
-    <!-- Loader -->
     <div class="loader" id="loader-1">
       <div class="loader-ring"></div>
       <div class="loader-text">Scanning website…</div>
       <div class="loader-sub">This usually takes 2–5 seconds</div>
     </div>
-
-    <!-- Result -->
     <div class="result" id="result-1">
       <div class="result-card" id="result-card-1">
         <div class="result-emoji" id="result-emoji-1"></div>
@@ -416,29 +367,21 @@
           <div class="result-status" id="result-status-1"></div>
           <div class="result-headline" id="result-headline-1"></div>
           <div class="result-detail" id="result-detail-1"></div>
-          <div class="result-meta">
-            <span class="meta-tag" id="result-url-1"></span>
-          </div>
+          <div class="result-meta"><span class="meta-tag" id="result-url-1"></span></div>
         </div>
       </div>
     </div>
-
-  </div><!-- /panel-1 -->
+  </div>
 
 </main>
 
 <script>
-  // ════════════════════════════════════════════════════════════
-  // IMPORTANT: Replace this URL with your Cloudflare Worker URL
-  // after you deploy the worker. It will look like:
-  // https://deardoc-checker.YOUR-SUBDOMAIN.workers.dev
-  // ════════════════════════════════════════════════════════════
   const WORKER_URL = 'https://deardoc-proxy.eduardo-cloudflare-51d.workers.dev';
 
   const CHECKS = [
     {
-      needle:  'firebasestorage.googleapis.com',
-      found:   {
+      needle: 'firebasestorage.googleapis.com',
+      found: {
         status: 'Installed',
         headline: '✅ Code Installed',
         detail: 'The DearDoc CodePanel code is correctly installed on this page.',
@@ -446,20 +389,20 @@
       missing: {
         status: 'Not Installed',
         headline: '❌ Code Not Installed',
-        detail: 'The DearDoc CodePanel code  was NOT found on this page. The client may need to reinstall the code snippet.',
+        detail: 'The DearDoc CodePanel code was NOT found on this page. The client may need to reinstall the code snippet.',
       },
     },
     {
-      needle:  'blog.getdeardoc.com/embedjs/727aacc9-8907-4269-9d7b-4f74e1ea2c88.js',
-      found:   {
+      needle: 'dib-posts',
+      found: {
         status: 'Installed',
         headline: '✅ Code Installed',
-        detail: 'The DearDoc Blog Embed script is correctly installed on this page.',
+        detail: 'The DearDoc Blog Embed code is correctly installed on this page.',
       },
       missing: {
         status: 'Not Installed',
         headline: '❌ Code Not Installed',
-        detail: 'The DearDoc Blog Embed script was NOT found on this page. The client may need to add the script tag.',
+        detail: 'The DearDoc Blog Embed code was NOT found on this page. The client may need to add the div tag.',
       },
     },
   ];
@@ -484,7 +427,6 @@
     const result = document.getElementById(`result-${tabIdx}`);
     const btn    = document.getElementById(`btn-${tabIdx}`);
 
-    // Reset
     result.classList.remove('visible');
     loader.classList.add('visible');
     btn.disabled = true;
@@ -495,7 +437,6 @@
       });
 
       const data = await resp.json();
-
       if (data.error) throw new Error(data.error);
 
       const html  = data.html || '';

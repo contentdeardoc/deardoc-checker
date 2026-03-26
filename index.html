@@ -437,6 +437,20 @@
       });
 
       const data = await resp.json();
+
+      // Detect blocked sites (403, empty body, or Cloudflare challenge page)
+      const isBlocked =
+        data.status === 403 ||
+        data.status === 429 ||
+        (data.html || '').toLowerCase().includes('cf-browser-verification') ||
+        (data.html || '').toLowerCase().includes('just a moment') ||
+        (data.html || '').trim().length < 200;
+
+      if (isBlocked) {
+        showBlocked(tabIdx, url, check.needle);
+        return;
+      }
+
       if (data.error) throw new Error(data.error);
 
       const html  = data.html || '';
@@ -446,9 +460,9 @@
 
     } catch (err) {
       showResult(tabIdx, 'warning', {
-        status: 'Error',
-        headline: '⚠️ Could Not Scan',
-        detail: `Unable to reach this website. It may be blocking automated requests, or there's a connection issue.\n\nError: ${err.message}`,
+        status: 'Connection Error',
+        headline: '⚠️ Could Not Reach Site',
+        detail: `Unable to connect to this website. Please check the URL and try again.\n\nError: ${err.message}`,
       }, url);
     } finally {
       loader.classList.remove('visible');
@@ -456,7 +470,40 @@
     }
   }
 
-  function showResult(tabIdx, type, content, url) {
+  function showBlocked(tabIdx, url, needle) {
+    const card   = document.getElementById(`result-card-${tabIdx}`);
+    const emoji  = document.getElementById(`result-emoji-${tabIdx}`);
+    const status = document.getElementById(`result-status-${tabIdx}`);
+    const hl     = document.getElementById(`result-headline-${tabIdx}`);
+    const det    = document.getElementById(`result-detail-${tabIdx}`);
+    const urlEl  = document.getElementById(`result-url-${tabIdx}`);
+    const result = document.getElementById(`result-${tabIdx}`);
+
+    card.className = 'result-card warning';
+    emoji.textContent = '⚠️';
+    status.textContent = 'Manual Check Required';
+    hl.textContent = '⚠️ Site Is Blocking Automated Scans';
+    urlEl.textContent = url;
+
+    det.innerHTML = `
+      This website has bot protection enabled and is blocking our automated scanner.
+      <strong>This does NOT mean the code is missing</strong> — you need to verify manually.<br><br>
+      <strong style="color:#92400e">How to check manually:</strong><br>
+      <ol style="margin:10px 0 0 18px;line-height:2">
+        <li>Open <a href="${url}" target="_blank" style="color:#1a4fad">${url}</a> in your browser</li>
+        <li>Right-click anywhere on the page → click <strong>"View Page Source"</strong></li>
+        <li>Press <strong>Ctrl+F</strong> (Windows) or <strong>Cmd+F</strong> (Mac) to open search</li>
+        <li>Type <code style="background:rgba(0,0,0,.08);padding:1px 6px;border-radius:4px;font-family:monospace">${needle}</code> and press Enter</li>
+        <li>If highlighted in yellow → <strong style="color:#16a34a">✅ Code is installed</strong></li>
+        <li>If no results → <strong style="color:#dc2626">❌ Code is NOT installed</strong></li>
+      </ol>
+    `;
+
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+
     const card   = document.getElementById(`result-card-${tabIdx}`);
     const emoji  = document.getElementById(`result-emoji-${tabIdx}`);
     const status = document.getElementById(`result-status-${tabIdx}`);

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DearDoc — Code Checker</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:      #0b1929;
+      --blue:      #1a4fad;
+      --sky:       #2d7dd2;
+      --accent:    #00c2ff;
+      --white:     #ffffff;
+      --mist:      #f0f5fc;
+      --slate:     #64748b;
+      --border:    #dce6f5;
+      --green:     #16a34a;
+      --green-bg:  #f0fdf4;
+      --green-bdr: #86efac;
+      --red:       #dc2626;
+      --red-bg:    #fef2f2;
+      --red-bdr:   #fca5a5;
+      --warn:      #d97706;
+      --warn-bg:   #fffbeb;
+      --warn-bdr:  #fcd34d;
+      --radius:    16px;
+      --shadow-sm: 0 1px 3px rgba(11,25,41,.08), 0 1px 2px rgba(11,25,41,.06);
+      --shadow:    0 4px 20px rgba(11,25,41,.10), 0 2px 6px rgba(11,25,41,.06);
+      --shadow-lg: 0 10px 40px rgba(11,25,41,.14), 0 4px 12px rgba(11,25,41,.08);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--mist);
+      color: var(--navy);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--navy);
+      padding: 0 40px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,.3);
+    }
+    .logo {
+      width: 38px; height: 38px;
+      background: linear-gradient(135deg, var(--sky) 0%, var(--accent) 100%);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; font-weight: 800; color: #fff;
+      letter-spacing: -1px; flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,194,255,.3);
+    }
+    .logo-name { color: #fff; font-size: 18px; font-weight: 700; letter-spacing: -.4px; }
+    .logo-pill {
+      background: rgba(0,194,255,.15);
+      border: 1px solid rgba(0,194,255,.3);
+      color: var(--accent);
+      font-size: 11px; font-weight: 600;
+      padding: 3px 10px; border-radius: 20px;
+      letter-spacing: .5px; text-transform: uppercase;
+    }
+    .header-right { margin-left: auto; color: rgba(255,255,255,.35); font-size: 13px; }
+
+    /* ── LAYOUT ── */
+    main {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-size: 12px; font-weight: 600; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--sky);
+      margin-bottom: 10px;
+    }
+    .page-title {
+      font-size: 32px; font-weight: 700; letter-spacing: -.6px;
+      line-height: 1.2; margin-bottom: 10px;
+    }
+    .page-sub {
+      font-size: 16px; color: var(--slate);
+      line-height: 1.6; margin-bottom: 40px;
+    }
+
+    /* ── TABS ── */
+    .tab-strip {
+      display: flex; gap: 0;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 32px;
+    }
+    .tab-btn {
+      padding: 12px 24px;
+      border: none; background: transparent; cursor: pointer;
+      font-family: inherit; font-size: 14px; font-weight: 500;
+      color: var(--slate);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all .18s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .tab-btn:hover { color: var(--navy); }
+    .tab-btn.active {
+      color: var(--blue);
+      border-bottom-color: var(--blue);
+      font-weight: 600;
+    }
+    .tab-badge {
+      background: var(--mist);
+      border: 1px solid var(--border);
+      font-size: 11px; font-weight: 600;
+      padding: 1px 7px; border-radius: 10px;
+      color: var(--slate);
+    }
+    .tab-btn.active .tab-badge {
+      background: rgba(26,79,173,.1);
+      border-color: rgba(26,79,173,.2);
+      color: var(--blue);
+    }
+
+    /* ── PANEL ── */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── INPUT CARD ── */
+    .input-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+      margin-bottom: 24px;
+    }
+
+    .field-label {
+      font-size: 13px; font-weight: 600;
+      color: var(--navy); margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .field-label-sub {
+      font-weight: 400; color: var(--slate); font-size: 12px;
+    }
+
+    .input-wrap {
+      display: flex;
+      background: var(--mist);
+      border: 1.5px solid var(--border);
+      border-radius: 11px;
+      overflow: hidden;
+      transition: border-color .18s, box-shadow .18s;
+    }
+    .input-wrap:focus-within {
+      border-color: var(--sky);
+      box-shadow: 0 0 0 3px rgba(45,125,210,.12);
+      background: var(--white);
+    }
+    .url-prefix {
+      padding: 0 14px;
+      display: flex; align-items: center;
+      background: rgba(11,25,41,.04);
+      border-right: 1px solid var(--border);
+      color: var(--slate); font-size: 13px;
+      font-family: 'DM Mono', monospace;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .url-input {
+      flex: 1; padding: 14px 16px;
+      border: none; background: transparent;
+      font-family: 'DM Mono', monospace; font-size: 14px;
+      color: var(--navy); outline: none;
+      min-width: 0;
+    }
+    .url-input::placeholder { color: var(--slate); font-style: italic; }
+
+    .scan-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 15px 28px;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--sky) 100%);
+      color: #fff;
+      border: none; border-radius: 11px;
+      font-family: inherit; font-size: 15px; font-weight: 600;
+      cursor: pointer;
+      transition: opacity .18s, transform .12s, box-shadow .18s;
+      box-shadow: 0 4px 14px rgba(26,79,173,.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .scan-btn:hover { opacity: .92; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(26,79,173,.4); }
+    .scan-btn:active { transform: translateY(0); }
+    .scan-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── WHAT WE CHECK ── */
+    .check-info {
+      margin-top: 20px;
+      padding: 16px 20px;
+      background: rgba(26,79,173,.04);
+      border: 1px solid rgba(26,79,173,.12);
+      border-radius: 10px;
+      display: flex; gap: 12px; align-items: flex-start;
+    }
+    .check-info-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .check-info p { font-size: 13px; color: var(--slate); line-height: 1.6; }
+    .check-info code {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      background: rgba(26,79,173,.08);
+      padding: 1px 6px; border-radius: 4px;
+      color: var(--blue);
+    }
+
+    /* ── LOADER ── */
+    .loader {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      gap: 16px;
+    }
+    .loader.visible { display: flex; }
+    .loader-ring {
+      width: 48px; height: 48px;
+      border: 3px solid var(--border);
+      border-top-color: var(--sky);
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-text { color: var(--slate); font-size: 14px; }
+    .loader-sub { color: rgba(100,116,139,.6); font-size: 12px; }
+
+    /* ── RESULT ── */
+    .result { display: none; }
+    .result.visible { display: block; }
+
+    .result-card {
+      border-radius: var(--radius);
+      padding: 32px 36px;
+      display: flex; gap: 24px; align-items: flex-start;
+      box-shadow: var(--shadow);
+    }
+    .result-card.success {
+      background: var(--green-bg);
+      border: 2px solid var(--green-bdr);
+    }
+    .result-card.failure {
+      background: var(--red-bg);
+      border: 2px solid var(--red-bdr);
+    }
+    .result-card.warning {
+      background: var(--warn-bg);
+      border: 2px solid var(--warn-bdr);
+    }
+
+    .result-emoji { font-size: 48px; line-height: 1; flex-shrink: 0; }
+
+    .result-body { flex: 1; min-width: 0; }
+    .result-status {
+      font-size: 11px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+    .success .result-status { color: var(--green); }
+    .failure .result-status { color: var(--red); }
+    .warning .result-status { color: var(--warn); }
+
+    .result-headline {
+      font-size: 26px; font-weight: 700; letter-spacing: -.4px;
+      line-height: 1.2; margin-bottom: 8px;
+    }
+    .success .result-headline { color: #15803d; }
+    .failure .result-headline { color: #b91c1c; }
+    .warning .result-headline { color: #92400e; }
+
+    .result-detail { font-size: 14px; color: var(--slate); line-height: 1.6; margin-bottom: 12px; }
+
+    .result-meta {
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .meta-tag {
+      font-family: 'DM Mono', monospace; font-size: 12px;
+      background: rgba(0,0,0,.06);
+      padding: 4px 10px; border-radius: 6px;
+      color: var(--slate); word-break: break-all;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px; background: var(--border);
+      margin: 28px 0;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">D</div>
+  <span class="logo-name">DearDoc</span>
+  <span class="logo-pill">Internal Tool</span>
+  <span class="header-right">Code Installation Checker</span>
+</header>
+
+<main>
+  <div class="page-eyebrow">Internal Operations</div>
+  <h1 class="page-title">Code Installation Checker</h1>
+  <p class="page-sub">Enter any client website URL to instantly verify whether DearDoc tracking code is correctly installed. Results appear in seconds.</p>
+
+  <!-- TABS -->
+  <div class="tab-strip">
+    <button class="tab-btn active" onclick="switchTab(0)">
+      🔥 Firebase Pixel
+      <span class="tab-badge">Check 1</span>
+    </button>
+    <button class="tab-btn" onclick="switchTab(1)">
+      📝 Blog Embed Script
+      <span class="tab-badge">Check 2</span>
+    </button>
+  </div>
+
+  <!-- ══════ TAB 0: Firebase ══════ -->
+  <div class="panel active" id="panel-0">
+
+    <div class="input-card">
+      <div class="field-label">
+        Client Website URL
+        <span class="field-label-sub">— homepage or any page</span>
+      </div>
+
+      <div class="input-wrap">
+        <span class="url-prefix">https://</span>
+        <input class="url-input" id="url-0"
+               type="text"
+               placeholder="clientwebsite.com"
+               onkeydown="if(event.key==='Enter') runCheck(0)" />
+      </div>
+
+      <button class="scan-btn" id="btn-0" onclick="runCheck(0)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Scan for Firebase Pixel
+      </button>
+
+      <div class="check-info">
+        <div class="check-info-icon">🔍</div>
+        <p>Scans the page HTML for <code>firebasestorage.deardoc</code> — the identifier that confirms the DearDoc tracking pixel is installed.</p>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader-0">
+      <div class="loader-ring"></div>
+      <div class="loader-text">Scanning website…</div>
+      <div class="loader-sub">This usually takes 2–5 seconds</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result" id="result-0">
+      <div class="result-card" id="result-card-0">
+        <div class="result-emoji" id="result-emoji-0"></div>
+        <div class="result-body">
+          <div class="result-status" id="result-status-0"></div>
+          <div class="result-headline" id="result-headline-0"></div>
+          <div class="result-detail" id="result-detail-0"></div>
+          <div class="result-meta">
+            <span class="meta-tag" id="result-url-0"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-0 -->
+
+  <!-- ══════ TAB 1: Blog Embed ══════ -->
+  <div class="panel" id="panel-1">
+
+    <div class="input-card">
+      <div class="field-label">
+        Client Website URL
+        <span class="field-label-sub">— homepage or any page</span>
+      </div>
+
+      <div class="input-wrap">
+        <span class="url-prefix">https://</span>
+        <input class="url-input" id="url-1"
+               type="text"
+               placeholder="clientwebsite.com"
+               onkeydown="if(event.key==='Enter') runCheck(1)" />
+      </div>
+
+      <button class="scan-btn" id="btn-1" onclick="runCheck(1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Scan for Blog Embed Script
+      </button>
+
+      <div class="check-info">
+        <div class="check-info-icon">🔍</div>
+        <p>Scans the page for the DearDoc blog embed script: <code>blog.getdeardoc.com/embedjs/727aacc9-8907-4269-9d7b-4f74e1ea2c88.js</code></p>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div class="loader" id="loader-1">
+      <div class="loader-ring"></div>
+      <div class="loader-text">Scanning website…</div>
+      <div class="loader-sub">This usually takes 2–5 seconds</div>
+    </div>
+
+    <!-- Result -->
+    <div class="result" id="result-1">
+      <div class="result-card" id="result-card-1">
+        <div class="result-emoji" id="result-emoji-1"></div>
+        <div class="result-body">
+          <div class="result-status" id="result-status-1"></div>
+          <div class="result-headline" id="result-headline-1"></div>
+          <div class="result-detail" id="result-detail-1"></div>
+          <div class="result-meta">
+            <span class="meta-tag" id="result-url-1"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-1 -->
+
+</main>
+
+<script>
+  // ════════════════════════════════════════════════════════════
+  // IMPORTANT: Replace this URL with your Cloudflare Worker URL
+  // after you deploy the worker. It will look like:
+  // https://deardoc-checker.YOUR-SUBDOMAIN.workers.dev
+  // ════════════════════════════════════════════════════════════
+  const WORKER_URL = 'https://YOUR-WORKER-NAME.YOUR-SUBDOMAIN.workers.dev';
+
+  const CHECKS = [
+    {
+      needle:  'firebasestorage.deardoc',
+      found:   {
+        status: 'Installed',
+        headline: '✅ Code Installed',
+        detail: 'The DearDoc Firebase tracking pixel is correctly installed on this page.',
+      },
+      missing: {
+        status: 'Not Installed',
+        headline: '❌ Code Not Installed',
+        detail: 'The DearDoc Firebase tracking pixel was NOT found on this page. The client may need to reinstall the code snippet.',
+      },
+    },
+    {
+      needle:  'blog.getdeardoc.com/embedjs/727aacc9-8907-4269-9d7b-4f74e1ea2c88.js',
+      found:   {
+        status: 'Installed',
+        headline: '✅ Code Installed',
+        detail: 'The DearDoc Blog Embed script is correctly installed on this page.',
+      },
+      missing: {
+        status: 'Not Installed',
+        headline: '❌ Code Not Installed',
+        detail: 'The DearDoc Blog Embed script was NOT found on this page. The client may need to add the script tag.',
+      },
+    },
+  ];
+
+  function switchTab(idx) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+    document.querySelectorAll('.panel').forEach((p, i) => p.classList.toggle('active', i === idx));
+  }
+
+  function normalizeUrl(raw) {
+    raw = raw.trim().replace(/^https?:\/\//i, '').replace(/^\/\//, '');
+    return 'https://' + raw;
+  }
+
+  async function runCheck(tabIdx) {
+    const rawInput = document.getElementById(`url-${tabIdx}`).value.trim();
+    if (!rawInput) { alert('Please enter a website URL first.'); return; }
+
+    const url    = normalizeUrl(rawInput);
+    const check  = CHECKS[tabIdx];
+    const loader = document.getElementById(`loader-${tabIdx}`);
+    const result = document.getElementById(`result-${tabIdx}`);
+    const btn    = document.getElementById(`btn-${tabIdx}`);
+
+    // Reset
+    result.classList.remove('visible');
+    loader.classList.add('visible');
+    btn.disabled = true;
+
+    try {
+      const resp = await fetch(`${WORKER_URL}?url=${encodeURIComponent(url)}`, {
+        signal: AbortSignal.timeout(25000),
+      });
+
+      const data = await resp.json();
+
+      if (data.error) throw new Error(data.error);
+
+      const html  = data.html || '';
+      const found = html.toLowerCase().includes(check.needle.toLowerCase());
+
+      showResult(tabIdx, found ? 'success' : 'failure', found ? check.found : check.missing, url);
+
+    } catch (err) {
+      showResult(tabIdx, 'warning', {
+        status: 'Error',
+        headline: '⚠️ Could Not Scan',
+        detail: `Unable to reach this website. It may be blocking automated requests, or there's a connection issue.\n\nError: ${err.message}`,
+      }, url);
+    } finally {
+      loader.classList.remove('visible');
+      btn.disabled = false;
+    }
+  }
+
+  function showResult(tabIdx, type, content, url) {
+    const card   = document.getElementById(`result-card-${tabIdx}`);
+    const emoji  = document.getElementById(`result-emoji-${tabIdx}`);
+    const status = document.getElementById(`result-status-${tabIdx}`);
+    const hl     = document.getElementById(`result-headline-${tabIdx}`);
+    const det    = document.getElementById(`result-detail-${tabIdx}`);
+    const urlEl  = document.getElementById(`result-url-${tabIdx}`);
+    const result = document.getElementById(`result-${tabIdx}`);
+
+    card.className = `result-card ${type}`;
+    emoji.textContent = type === 'success' ? '✅' : type === 'failure' ? '❌' : '⚠️';
+    status.textContent = content.status;
+    hl.textContent = content.headline;
+    det.textContent = content.detail;
+    urlEl.textContent = url;
+
+    result.classList.add('visible');
+    result.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+</body>
+</html>

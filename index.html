@@ -267,7 +267,7 @@
       </button>
       <div class="check-info">
         <div class="check-info-icon">🔍</div>
-        <p>Automatically scans <strong>15 common blog page paths</strong> (e.g. <code>/blog</code>, <code>/news</code>, <code>/articles</code>…) looking for <code>dib-posts</code>. Reports the first page where it's found.</p>
+        <p>Automatically scans <strong>18 common blog page paths</strong> (e.g. <code>/blog</code>, <code>/news</code>, <code>/articles</code>…) looking for <code>dib-posts</code>. Reports the first page where it's found.</p>
       </div>
       <!-- live path progress pills -->
       <div class="path-list" id="path-pills"></div>
@@ -275,7 +275,7 @@
     <div class="loader" id="loader-1">
       <div class="loader-ring"></div>
       <div class="loader-text" id="loader-text-1">Scanning blog pages…</div>
-      <div class="loader-sub" id="loader-sub-1">Checking up to 15 paths simultaneously</div>
+      <div class="loader-sub" id="loader-sub-1">Checking up to 18 paths simultaneously</div>
     </div>
     <div class="result" id="result-1">
       <div class="result-card" id="result-card-1">
@@ -296,9 +296,9 @@
   var WORKER_URL = 'https://deardoc-proxy.eduardo-cloudflare-51d.workers.dev';
 
   var BLOG_PATHS = [
-    '/blog', '/blogs', '/blog-posts', '/blog-post',
+    '/blog', '/blogs', '/blog-posts', '/blog-post', '/blog-1', '/blog.html',
     '/news', '/news-posts', '/news-post',
-    '/articles', '/article',
+    '/articles', '/article', '/articles-1',
     '/resources', '/resource',
     '/updates', '/posts', '/media', '/newsroom'
   ];
